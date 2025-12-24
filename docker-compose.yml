@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # 1. قاعدة البيانات (PostgreSQL)
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: sociallypro
+    ports:
+      - "5432:5432"
+
+  # 2. خدمة Redis لنظام الطوابير والـ Worker
+  redis:
+    image: redis:7
+    restart: always
+    ports:
+      - "6379:6379"
+
+  # 3. الباك إند (NestJS)
+  backend:
+    build: ./backend
+    ports:
+      - "3001:3000"
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - ./backend/.env
+
+  # 4. الفرونت إند (Next.js)
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
