@@ -1,7 +1,8 @@
-FROM node:20-alpine
+# تغيير النظام إلى debian (slim) لحل مشاكل المكتبات نهائياً
+FROM node:20-slim
 
-# إضافة compat-openssl11 لحل مشكلة المكتبة المفقودة
-RUN apk add --no-cache openssl libc6-compat compat-openssl11
+# تحديث وتثبيت openssl الضروري
+RUN apt-get update -y && apt-get install -y openssl
 
 WORKDIR /app
 
