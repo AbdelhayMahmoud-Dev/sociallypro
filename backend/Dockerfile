@@ -1,7 +1,7 @@
 FROM node:20-alpine
 
-# تثبيت المكتبات الضرورية لتشغيل Prisma
-RUN apk add --no-cache openssl libc6-compat
+# إضافة compat-openssl11 لحل مشكلة المكتبة المفقودة
+RUN apk add --no-cache openssl libc6-compat compat-openssl11
 
 WORKDIR /app
 
