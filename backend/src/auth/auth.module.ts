@@ -4,7 +4,7 @@ import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { PrismaModule } from '../prisma/prisma.module';
-import { GoogleStrategy } from './google.strategy'; // تأكد من g الصغيرة في المسار
+import { GoogleStrategy } from './google.strategy'; // التأكد من المسار الصحيح بـ g صغيرة
 
 @Module({
   imports: [
@@ -12,13 +12,13 @@ import { GoogleStrategy } from './google.strategy'; // تأكد من g الصغ�
     PassportModule,
     JwtModule.register({
       secret: 'SUPER_SECRET_KEY_123', // مفتاح التشفير الخاص بك
-      signOptions: { expiresIn: '7d' }, 
+      signOptions: { expiresIn: '7d' }, // صلاحية الجلسة لمدة 7 أيام
     }),
   ],
   controllers: [AuthController],
   providers: [
     AuthService, 
-    GoogleStrategy // هذا هو السطر الذي سيحل مشكلة "Unknown authentication strategy google"
+    GoogleStrategy // إضافة الاستراتيجية هنا هي الخطوة التي "تُسجل" نظام جوجل داخل التطبيق
   ],
 })
 export class AuthModule {}
