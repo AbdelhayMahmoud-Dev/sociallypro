@@ -4,21 +4,21 @@ import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { PrismaModule } from '../prisma/prisma.module';
-import { GoogleStrategy } from './google.strategy'; // تأكد أن g صغيرة في المسار لتطابق اسم ملفك
+import { GoogleStrategy } from './google.strategy'; // تأكد أن g صغيرة لتطابق اسم ملفك
 
 @Module({
   imports: [
     PrismaModule,
     PassportModule,
     JwtModule.register({
-      secret: 'SUPER_SECRET_KEY_123', // مفتاح التشفير الخاص بك
-      signOptions: { expiresIn: '7d' }, 
+      secret: 'SUPER_SECRET_KEY_123',
+      signOptions: { expiresIn: '7d' },
     }),
   ],
   controllers: [AuthController],
   providers: [
     AuthService, 
-    GoogleStrategy // هذا السطر هو "التسجيل" الرسمي الذي يحل مشكلة Unknown strategy
+    GoogleStrategy // هذا هو السطر الذي ينقصك وبدونه لن يعمل "جوجل" أبداً
   ],
 })
 export class AuthModule {}
