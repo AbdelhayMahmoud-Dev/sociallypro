@@ -1,9 +1,22 @@
 FROM node:20-alpine
+
 WORKDIR /app
+
 COPY package*.json ./
-# إضافة flag لتجاهل مشاكل التوافق وتسريع التثبيت
+
+# Install dependencies
 RUN npm install --legacy-peer-deps
+
 COPY . .
+
+# Generate Prisma client
 RUN npx prisma generate
-EXPOSE 3000
-CMD ["npm", "run", "start:dev"]
+
+# Build the application (هذه الخطوة كانت ناقصة وهي الأهم)
+RUN npm run build
+
+# Expose the correct port
+EXPOSE 8000
+
+# Start in production mode
+CMD ["npm", "run", "start:prod"]
