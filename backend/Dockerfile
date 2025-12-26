@@ -1,22 +1,23 @@
 FROM node:20-alpine
 
+# تثبيت المكتبات الضرورية لتشغيل Prisma
+RUN apk add --no-cache openssl libc6-compat
+
 WORKDIR /app
 
 COPY package*.json ./
 
-# Install dependencies
+# تثبيت الحزم
 RUN npm install --legacy-peer-deps
 
 COPY . .
 
-# Generate Prisma client
+# توليد ملفات Prisma
 RUN npx prisma generate
 
-# Build the application (هذه الخطوة كانت ناقصة وهي الأهم)
+# بناء المشروع
 RUN npm run build
 
-# Expose the correct port
 EXPOSE 8000
 
-# Start in production mode
 CMD ["npm", "run", "start:prod"]
