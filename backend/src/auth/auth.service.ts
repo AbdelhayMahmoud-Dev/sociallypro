@@ -1,6 +1,10 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { JwtService } from '@nestjs/jwt';
+  import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto, LoginDto } from './dto/auth.dto';
 
@@ -11,7 +15,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  // تسجيل حساب جديد
+  // Register with email/password
   async register(dto: RegisterDto) {
     const existingUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -28,13 +32,14 @@ export class AuthService {
         name: dto.name,
         email: dto.email,
         password: hashedPassword,
+        role: 'user',
       },
     });
 
     return this.generateToken(user);
   }
 
-  // تسجيل الدخول
+  // Login with email/password
   async login(dto: LoginDto) {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -52,8 +57,39 @@ export class AuthService {
     return this.generateToken(user);
   }
 
-  private async generateToken(user: any) {
-    const payload = { sub: user.id, email: user.email, role: user.role };
+  // 🔥 Google OAuth handler (IMPORTANT)
+  async handleGoogleUser(googleUser: {
+    email: string;
+    firstName?: string;
+    lastName?: string;
+    picture?: string;
+  }) {
+    let user = await this.prisma.user.findUnique({
+      where: { email: googleUser.email },
+    });
+
+    if (!user) {
+      user = await this.prisma.user.create({
+        data: {
+          email: googleUser.email,
+          name: `${googleUser.firstName ?? ''} ${googleUser.lastName ?? ''}`.trim(),
+          role: 'user',
+          oauthProvider: 'google',
+        },
+      });
+    }
+
+    return this.generateToken(user);
+  }
+
+  // ✅ MUST be public
+  async generateToken(user: any) {
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
     return {
       access_token: await this.jwtService.signAsync(payload),
       user: {

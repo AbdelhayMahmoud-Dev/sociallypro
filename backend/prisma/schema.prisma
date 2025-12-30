@@ -37,7 +37,6 @@ model Order {
   externalReference String?
   retryCount        Int      @default(0)
   createdAt         DateTime @default(now())
-
-  user     User     @relation(fields: [userId], references: [id])
-  supplier Supplier @relation(fields: [supplierId], references: [id])
+  supplier          Supplier @relation(fields: [supplierId], references: [id])
+  user              User     @relation(fields: [userId], references: [id])
 }

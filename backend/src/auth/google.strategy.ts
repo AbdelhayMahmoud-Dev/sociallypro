@@ -1,12 +1,11 @@
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy, VerifyCallback } from 'passport-google-oauth20';
+import { Strategy } from 'passport-google-oauth20';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor() {
     super({
-      // قراءة القيم من متغيرات البيئة في Koyeb لضمان عملها على السيرفر
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: process.env.GOOGLE_CALLBACK_URL,
@@ -18,16 +17,18 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     accessToken: string,
     refreshToken: string,
     profile: any,
-    done: VerifyCallback,
-  ): Promise<any> {
-    const { name, emails, photos } = profile;
-    const user = {
-      email: emails[0].value,
-      firstName: name.givenName,
-      lastName: name.familyName,
-      picture: photos[0].value,
-      accessToken,
+  ) {
+    const email = profile.emails?.[0]?.value;
+    const firstName = profile.name?.givenName;
+    const lastName = profile.name?.familyName;
+    const picture = profile.photos?.[0]?.value;
+
+    return {
+      email,
+      firstName,
+      lastName,
+      picture,
+      provider: 'google',
     };
-    done(null, user);
   }
 }

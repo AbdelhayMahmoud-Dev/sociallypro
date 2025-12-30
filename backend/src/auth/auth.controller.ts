@@ -1,32 +1,30 @@
-import { Controller, Get, Req, UseGuards, Param } from '@nestjs/common';
+import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import type { Response } from 'express';
+import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt.guard';
 
 @Controller('auth')
 export class AuthController {
-  
-  // 1. مسار بدء تسجيل الدخول عبر جوجل
+  constructor(private readonly authService: AuthService) {}
+
   @Get('google')
   @UseGuards(AuthGuard('google'))
-  async googleAuth(@Req() req) {
-    // يتم التوجيه تلقائياً إلى جوجل
-  }
+  async googleAuth() {}
 
-  // 2. مسار استقبال بيانات جوجل بعد النجاح
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  async googleCallback(@Req() req) {
-    return {
-      message: 'User information from Google',
-      user: req.user, // بيانات البروفايل المستلمة
-    };
+  async googleCallback(@Req() req, @Res() res: Response) {
+    const token = await this.authService.handleGoogleUser(req.user);
+
+    return res.redirect(
+      `${process.env.FRONTEND_URL}/oauth-success?token=${token.access_token}`,
+    );
   }
 
-  // 3. التحديث المطلوب: مسار جلب بيانات المستخدم المحمي بـ JWT
   @UseGuards(JwtAuthGuard)
-  @Get('user/:id')
-  async getUserData(@Param('id') id: string) {
-    // هذا المسار محمي ولا يمكن دخوله بدون توكن JWT صالح
-    return { userId: id, status: 'Authorized access' };
+  @Get('me')
+  async getProfile(@Req() req) {
+    return req.user;
   }
 }
